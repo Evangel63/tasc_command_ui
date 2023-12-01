@@ -1,0 +1,23 @@
+{
+    "id":"evangel_tascui",
+	"name":"Terraforming & Station Construction - Command UI",
+	"author":"Evangel",
+    "utility":"false",
+	"version":"1.0.0",
+	"description":"Better UI for Terraforming & Station Construction mod.",
+    "gameVersion": "0.96a-RC10",
+  	"jars":["jars/tasc_command_ui.jar"],
+  	"modPlugin":"evangel.tascui.CommandUIModPlugin",
+	"dependencies": [
+        {
+            "id": "Terraforming & Station Construction",
+            "name": "Terraforming & Station Construction",
+            "version": "8.4.6.Alpha"
+        },
+        {
+            "id": "lunalib",
+            "name": "LunaLib",
+            "version": "1.8.3"
+        }
+    ]
+}

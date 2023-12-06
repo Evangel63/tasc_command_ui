@@ -11,9 +11,10 @@ import com.fs.starfarer.api.util.Misc
 import data.campaign.econ.boggledTools
 import data.campaign.econ.conditions.Terraforming_Controller
 import data.kaysaar.aotd.vok.scripts.research.AoTDMainResearchManager
-import lunalib.backend.ui.components.base.LunaUIPlaceholder
-import lunalib.backend.ui.components.base.LunaUISphere
-import lunalib.backend.ui.components.base.LunaUISprite
+//import lunalib.backend.ui.components.base.LunaUIPlaceholder
+//import lunalib.backend.ui.components.base.LunaUISprite
+import lunalib.lunaUI.elements.LunaElement
+import lunalib.lunaUI.elements.LunaSpriteElement
 import lunalib.lunaUI.panel.LunaBaseCustomPanelPlugin
 import org.apache.log4j.LogManager
 import org.lwjgl.input.Keyboard
@@ -130,26 +131,26 @@ class PlanetCardTooltip(basePanel : CustomPanelAPI, market : MarketAPI) : Toolti
     override fun createTooltip(tooltip : TooltipMakerAPI, expanded : Boolean, tooltipParam : Any?) {
         tooltip.addSectionHeading("Industries & structures", Alignment.MID, 0f)
 
-        val industriesPlaceholder = LunaUIPlaceholder(false, getTooltipWidth(null), 400f, "", "PlanetCardTooltip", basePanel, tooltip)
-        industriesPlaceholder.position!!.inTL(0f, 0f)
-
-        val industriesElement = industriesPlaceholder.lunaElement!!.createUIElement(getTooltipWidth(null), 400f, false)
-        industriesElement.position.inTL(0f, 0f)
-
-        industriesPlaceholder.lunaElement!!.addUIElement(industriesElement)
+//        val industriesPlaceholder = LunaUIPlaceholder(false, getTooltipWidth(null), 400f, "", "PlanetCardTooltip", basePanel, tooltip)
+//        industriesPlaceholder.position!!.inTL(0f, 0f)
+//
+//        val industriesElement = industriesPlaceholder.lunaElement!!.createUIElement(getTooltipWidth(null), 400f, false)
+//        industriesElement.position.inTL(0f, 0f)
+//
+//        industriesPlaceholder.lunaElement!!.addUIElement(industriesElement)
 
         var horizontalSpacing = 0f
         var verticalSpacing = 0f
         for (industry in market.industries) {
-            val industryHolder = LunaUIPlaceholder(false, getTooltipWidth(null) / 2, CommandUIIntelK.PLANET_CARD_HEIGHT / 2, "", "PlanetCardTooltipItem", industriesPlaceholder.lunaElement!!, industriesElement)
-            industryHolder.position!!.inTL(horizontalSpacing, verticalSpacing)
-
-            val industryElement = industryHolder.lunaElement!!.createUIElement(getTooltipWidth(null) / 2, CommandUIIntelK.PLANET_CARD_HEIGHT / 2, false)
-            industryElement.position.inTL(0f, 0f)
-
-            industryHolder.lunaElement!!.addUIElement(industryElement)
-
-            val sprite = LunaUISprite(industry.spec.imageName, 20f, 20f, 0f, 0f, 0f, 0f, "", "IndustrySprite", industryHolder.lunaElement!!, industryElement)
+//            val industryHolder = LunaUIPlaceholder(false, getTooltipWidth(null) / 2, CommandUIIntelK.PLANET_CARD_HEIGHT / 2, "", "PlanetCardTooltipItem", industriesPlaceholder.lunaElement!!, industriesElement)
+//            industryHolder.position!!.inTL(horizontalSpacing, verticalSpacing)
+//
+//            val industryElement = industryHolder.lunaElement!!.createUIElement(getTooltipWidth(null) / 2, CommandUIIntelK.PLANET_CARD_HEIGHT / 2, false)
+//            industryElement.position.inTL(0f, 0f)
+//
+//            industryHolder.lunaElement!!.addUIElement(industryElement)
+//
+//            val sprite = LunaUISprite(industry.spec.imageName, 20f, 20f, 0f, 0f, 0f, 0f, "", "IndustrySprite", industryHolder.lunaElement!!, industryElement)
 
             horizontalSpacing += getTooltipWidth(null) / 2
             if (horizontalSpacing >= getTooltipWidth(null)) {
@@ -179,6 +180,7 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
     private var requirementsMetButtons : ArrayList<ButtonAPI> = ArrayList()
     private var requirementsNotMetButtons : ArrayList<ButtonAPI> = ArrayList()
 
+    private var inactiveStartProjectButton : ButtonAPI? = null
     private var startProjectButton : ButtonAPI? = null
     private var requirementsNotMetButton : ButtonAPI? = null
 
@@ -196,15 +198,23 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
         private const val HEADER_HEIGHT = 20f
 
         private const val SORT_SPACING = 3f
+        private const val PANEL_SPACING = 5f
+
+        private const val SORT_MAGIC_X_PAD = -2f
 
         private const val NAME_WIDTH = 170f
-        private const val NAME_OFFSET = 0f
-        private const val CONDITIONS_WIDTH = 200f
-        private const val CONDITIONS_OFFSET = NAME_OFFSET + NAME_WIDTH + SORT_SPACING
-        private const val HAZARD_WIDTH  = 150f
-        private const val HAZARD_OFFSET = CONDITIONS_OFFSET + CONDITIONS_WIDTH + SORT_SPACING
+        private const val NAME_PANEL_OFFSET = SORT_MAGIC_X_PAD
+        private const val NAME_SORT_OFFSET = SORT_MAGIC_X_PAD
 
-        private const val SORT_PANEL_WIDTH = HAZARD_OFFSET + HAZARD_WIDTH
+        private const val CONDITIONS_WIDTH = 200f
+        private const val CONDITIONS_PANEL_OFFSET = NAME_PANEL_OFFSET + NAME_WIDTH + PANEL_SPACING
+        private const val CONDITIONS_SORT_OFFSET = NAME_SORT_OFFSET + NAME_WIDTH + SORT_SPACING
+
+        private const val HAZARD_WIDTH  = 150f
+        private const val HAZARD_PANEL_OFFSET = CONDITIONS_PANEL_OFFSET + CONDITIONS_WIDTH + SORT_SPACING
+        private const val HAZARD_SORT_OFFSET = CONDITIONS_SORT_OFFSET + CONDITIONS_WIDTH + SORT_SPACING
+
+        private const val SORT_PANEL_WIDTH = HAZARD_SORT_OFFSET + HAZARD_WIDTH
         private const val SORT_PANEL_HEIGHT = HEADER_HEIGHT
         private const val SORT_ARROW_SPRITE_SIZE = 15f
 
@@ -220,8 +230,8 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
         private const val CONDITION_SPRITE_SIZE = 21f
         private const val CONDITION_SPRITE_SIZE_W_SPACING = CONDITION_SPRITE_SIZE + 3f
 
-        private const val PLANET_CARD_HOLDER_MAGIC_X_PAD = 5f
-        private const val PLANET_TYPE_LABEL_MAGIC_X_PAD = -4f
+        private const val PLANET_CARD_HOLDER_MAGIC_X_PAD = 3f
+        private const val PLANET_TYPE_LABEL_MAGIC_X_PAD = 4f
 
         fun getRequiredResearchParaFromProjectName(projectName : String) : String {
             var researchReqPara = ""
@@ -309,28 +319,27 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
         }
     }
 
-    private fun createTerraformingSelectionButtons(basePanel : CustomPanelAPI, baseElement : TooltipMakerAPI, width : Float, height : Float, yPad : Float) {
+    private fun createTerraformingSelectionButtons(baseElement : TooltipMakerAPI, width : Float, height : Float, yPad : Float) {
         val faction = Global.getSector().playerFaction
 
-        val buttonsHolder = LunaUIPlaceholder(false, width, height, "", "TerraformingButtons", basePanel, baseElement)
-        buttonsHolder.position!!.inTL(0f, yPad)
+        val buttonsHolder = LunaElement(baseElement, width, height)
+        buttonsHolder.renderBackground = false
+        buttonsHolder.renderBorder = false
+        buttonsHolder.position.inTL(0f, yPad)
 
-        val buttonsElement = buttonsHolder.lunaElement!!.createUIElement(width, height, true)
-        buttonsElement.position.inTL(0f, 0f)
-
-        buttonsHolder.lunaElement!!.addUIElement(buttonsElement)
+//        buttonsHolder.innerElement.addAreaCheckbox(null, null, Global.getSector().playerFaction.baseUIColor, Color(122,122,122,255), Global.getSector().playerFaction.brightUIColor, width, height, 0f).position.inTL(0f, 0f)
 
         for (terraformingOption in BOGGLED_TERRAFORMING_OPTIONS) {
             val projectRequirementsTooltip = ProjectRequirementsTooltip(terraformingOption.first, width)
 
-            val validButton = buttonsElement.addButton(terraformingOption.second, projectRequirementsTooltip, faction.baseUIColor, faction.darkUIColor, Alignment.LMID, CutStyle.ALL, width, HEADER_HEIGHT, 0f)
-            val invalidButton = buttonsElement.addButton(terraformingOption.second, projectRequirementsTooltip, faction.baseUIColor.darker(), faction.darkUIColor.darker(), Alignment.LMID, CutStyle.ALL, width, HEADER_HEIGHT, 0f)
+            val validButton = buttonsHolder.innerElement.addButton(terraformingOption.second, projectRequirementsTooltip, faction.baseUIColor, faction.darkUIColor, Alignment.LMID, CutStyle.ALL, width, HEADER_HEIGHT, 0f)
+            val invalidButton = buttonsHolder.innerElement.addButton(terraformingOption.second, projectRequirementsTooltip, faction.baseUIColor.darker(), faction.darkUIColor.darker(), Alignment.LMID, CutStyle.ALL, width, HEADER_HEIGHT, 0f)
 
-            buttonsElement.addTooltipTo(projectRequirementsTooltip, validButton, TooltipMakerAPI.TooltipLocation.ABOVE)
-            buttonsElement.addTooltipTo(projectRequirementsTooltip, invalidButton, TooltipMakerAPI.TooltipLocation.ABOVE)
+            buttonsHolder.innerElement.addTooltipTo(projectRequirementsTooltip, validButton, TooltipMakerAPI.TooltipLocation.RIGHT)
+            buttonsHolder.innerElement.addTooltipTo(projectRequirementsTooltip, invalidButton, TooltipMakerAPI.TooltipLocation.RIGHT)
 
-            validButton.position!!.inTL(BUTTON_OFF_SCREEN_POSITION, BUTTON_OFF_SCREEN_POSITION)
-            invalidButton.position!!.inTL(BUTTON_OFF_SCREEN_POSITION, BUTTON_OFF_SCREEN_POSITION)
+            validButton.position.inTL(BUTTON_OFF_SCREEN_POSITION, BUTTON_OFF_SCREEN_POSITION)
+            invalidButton.position.inTL(BUTTON_OFF_SCREEN_POSITION, BUTTON_OFF_SCREEN_POSITION)
 
             requirementsMetButtons.add(validButton)
             requirementsNotMetButtons.add(invalidButton)
@@ -344,7 +353,7 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
         val terraformingPanelHeight = height - verticalSpacing - 5f
 
         val terraformingPanel = panel.createCustomPanel(terraformingPanelWidth, terraformingPanelHeight, null)
-        terraformingPanel.position.inTR(2f, verticalSpacing)
+        terraformingPanel.position.inTR(0f, verticalSpacing)
 
         val terraformingElement = terraformingPanel.createUIElement(terraformingPanelWidth, terraformingPanelHeight, true)
         terraformingElement.position.inTL(0f, 0f)
@@ -352,48 +361,43 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
         terraformingPanel.addUIElement(terraformingElement)
         panel.addComponent(terraformingPanel)
 
-        val headerHolder = LunaUIPlaceholder(false, terraformingPanelWidth, terraformingPanelHeight, "", "TerraformingSectionHeader", terraformingPanel, terraformingElement)
-        headerHolder.position!!.inTL(0f, 0f)
+        val sectionHeading = terraformingElement.addSectionHeading(selectedPlanet?.market?.name, Alignment.MID, 0f)
+        sectionHeading.position.inTL(0f, 0f)
 
-        val headerElement = headerHolder.lunaElement!!.createUIElement(terraformingPanelWidth, terraformingPanelHeight, false)
-        val headerLabel = headerElement.addSectionHeading(selectedPlanet?.market?.name, Alignment.MID, 0f)
+        val buttonsWidth = terraformingPanelWidth * 0.5f - SORT_SPACING;
+        val buttonsHeight = terraformingPanelHeight - verticalSpacing - HEADER_HEIGHT
 
-        headerHolder.lunaElement!!.addUIElement(headerElement)
+        createTerraformingSelectionButtons(terraformingElement, buttonsWidth, buttonsHeight, verticalSpacing)
 
-        val buttonsWidth = terraformingPanelWidth * 0.5f;
-        val buttonsHeight = terraformingPanelHeight - verticalSpacing
-        createTerraformingSelectionButtons(terraformingPanel, terraformingElement, buttonsWidth, buttonsHeight, verticalSpacing)
+        val startCancelProjectButtonsWidth = terraformingPanelWidth - SORT_SPACING
+        val startCancelProjectButtonsHeight = HEADER_HEIGHT
+        val startCancelProjectButtonsHolder = LunaElement(terraformingElement, startCancelProjectButtonsWidth, startCancelProjectButtonsHeight)
+        startCancelProjectButtonsHolder.renderBackground = false
+        startCancelProjectButtonsHolder.renderBorder = false
+        startCancelProjectButtonsHolder.position.inTL(0f, terraformingPanelHeight - startCancelProjectButtonsHeight)
 
-        val otherButtonsWidth = terraformingPanelWidth - buttonsWidth - SORT_SPACING
-        val otherButtonsHeight = buttonsHeight
-        val otherButtonsHolder = LunaUIPlaceholder(false, otherButtonsWidth, otherButtonsHeight, "", "TerraformingInitiateHolder", terraformingPanel, terraformingElement)
-        otherButtonsHolder.position!!.inTL(buttonsWidth + SORT_SPACING -1f, verticalSpacing)
-
-        val otherButtonsElement = otherButtonsHolder.lunaElement!!.createUIElement(otherButtonsWidth, otherButtonsHeight, false)
-        otherButtonsElement.position!!.inTL(0f, 0f)
-
-        otherButtonsHolder.lunaElement!!.addUIElement(otherButtonsElement)
+//        startCancelProjectButtonsHolder.innerElement.addAreaCheckbox(null, null, Global.getSector().playerFaction.baseUIColor, Color(122,122,122,255), Global.getSector().playerFaction.brightUIColor, startCancelProjectButtonsWidth, startCancelProjectButtonsHeight, 0f).position.inTL(0f, 0f)
 
         val faction = Global.getSector().playerFaction
 
-        startProjectButton = otherButtonsElement.addButton("Start project", null, faction.baseUIColor, faction.darkUIColor, Alignment.MID, CutStyle.ALL, otherButtonsWidth, HEADER_HEIGHT, 0f)
-        requirementsNotMetButton = otherButtonsElement.addButton("Requirements not met", null, faction.baseUIColor.darker(), faction.darkUIColor.darker(), Alignment.MID, CutStyle.ALL, otherButtonsWidth, HEADER_HEIGHT, 0f)
+        inactiveStartProjectButton = startCancelProjectButtonsHolder.innerElement.addButton("Start project", null, faction.baseUIColor.darker(), faction.darkUIColor.darker(), Alignment.MID, CutStyle.ALL, buttonsWidth, HEADER_HEIGHT, 0f)
+        startProjectButton = startCancelProjectButtonsHolder.innerElement.addButton("Start project", null, faction.baseUIColor, faction.darkUIColor, Alignment.MID, CutStyle.ALL, buttonsWidth, HEADER_HEIGHT, 0f)
+        requirementsNotMetButton = startCancelProjectButtonsHolder.innerElement.addButton("Requirements not met", null, faction.baseUIColor.darker(), faction.darkUIColor.darker(), Alignment.MID, CutStyle.ALL, buttonsWidth, HEADER_HEIGHT, 0f)
 
         requirementsNotMetButton!!.setClickable(false)
 
         startProjectButton!!.position.inTL(BUTTON_OFF_SCREEN_POSITION, BUTTON_OFF_SCREEN_POSITION)
         requirementsNotMetButton!!.position.inTL(BUTTON_OFF_SCREEN_POSITION, BUTTON_OFF_SCREEN_POSITION)
 
-        val cancelProjectButtonBR = Pair(0f, otherButtonsHeight - HEADER_HEIGHT)
-        activeCancelProjectButton = otherButtonsElement.addButton("Cancel current project", cancelProjectButtonBR, faction.baseUIColor, faction.darkUIColor, Alignment.MID, CutStyle.ALL, otherButtonsWidth, HEADER_HEIGHT, 0f)
-        inactiveCancelProjectButton = otherButtonsElement.addButton("Cancel current project", cancelProjectButtonBR, faction.baseUIColor.darker(), faction.darkUIColor.darker(), Alignment.MID, CutStyle.ALL, otherButtonsWidth, HEADER_HEIGHT, 0f)
+        activeCancelProjectButton = startCancelProjectButtonsHolder.innerElement.addButton("Cancel current project", null, faction.baseUIColor, faction.darkUIColor, Alignment.MID, CutStyle.ALL, buttonsWidth, HEADER_HEIGHT, 0f)
+        inactiveCancelProjectButton = startCancelProjectButtonsHolder.innerElement.addButton("Cancel current project", null, faction.baseUIColor.darker(), faction.darkUIColor.darker(), Alignment.MID, CutStyle.ALL, buttonsWidth, HEADER_HEIGHT, 0f)
 
         inactiveCancelProjectButton!!.setClickable(false)
 
         activeCancelProjectButton!!.position.inTL(BUTTON_OFF_SCREEN_POSITION, BUTTON_OFF_SCREEN_POSITION)
         inactiveCancelProjectButton!!.position.inTL(BUTTON_OFF_SCREEN_POSITION, BUTTON_OFF_SCREEN_POSITION)
 
-        terraformingPanelData = CommandUITerraformingButtonPanelData(headerLabel)
+        terraformingPanelData = CommandUITerraformingButtonPanelData(sectionHeading)
     }
 
     private fun updateTerraformingSelection() {
@@ -446,11 +450,14 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
     }
 
     private fun moveCancelButtonOffscreen(activeButton : ButtonAPI, inactiveButton : ButtonAPI) {
-        val p = activeButton.customData as Pair<*, *>
-        val x = p.first as Float
-        val y = p.second as Float
-        activeButton.position.inTR(x, y)
+        activeButton.position.inTR(0f, 0f)
         inactiveButton.position.inTL(BUTTON_OFF_SCREEN_POSITION, BUTTON_OFF_SCREEN_POSITION)
+    }
+
+    private fun moveStartButtonOffscreen(activeButton : ButtonAPI, inactiveButton1 : ButtonAPI, inactiveButton2 : ButtonAPI) {
+        activeButton.position.inTL(0f, 0f)
+        inactiveButton1.position.inTL(BUTTON_OFF_SCREEN_POSITION, BUTTON_OFF_SCREEN_POSITION)
+        inactiveButton2.position.inTL(BUTTON_OFF_SCREEN_POSITION, BUTTON_OFF_SCREEN_POSITION)
     }
 
     private fun handlePlanetCardPress(data : CommandUIButtonData) {
@@ -467,6 +474,7 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
         if (selectedPlanet != null) {
             updateTerraformingSelection()
 
+            moveStartButtonOffscreen(inactiveStartProjectButton!!, startProjectButton!!, requirementsNotMetButton!!)
             val terraformingController = getTerraformingControllerFromMarket(selectedPlanet!!.market)
             if (terraformingController.project == "None") {
                 moveCancelButtonOffscreen(inactiveCancelProjectButton!!, activeCancelProjectButton!!)
@@ -511,26 +519,24 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
         moveCancelButtonOffscreen(inactiveCancelProjectButton!!, activeCancelProjectButton!!)
     }
 
-    private fun createSortButton(width : Float, height : Float, basePanel : CustomPanelAPI, baseElement : TooltipMakerAPI, xPad : Float, buttonText : String, data : Any?, tooltip : StaticTooltip) {
+    private fun createSortButton(baseElement: TooltipMakerAPI, buttonText: String, data: Any?, width: Float, height: Float, xPad: Float, tooltip: StaticTooltip) {
         val faction = Global.getSector().playerFaction
 
-        val holder = LunaUIPlaceholder(false, width, height, "", "Sorting", basePanel, baseElement)
-        holder.position!!.inTL(xPad, 0f)
+        val sortHolder = LunaElement(baseElement, width, height)
+        sortHolder.renderBackground = false
+        sortHolder.renderBorder = false
+        sortHolder.position.inTL(xPad, 0f)
 
-        val element = holder.lunaElement!!.createUIElement(width, height, false)
-        val button = element.addAreaCheckbox(buttonText, data, faction.baseUIColor, faction.darkUIColor, faction.brightUIColor, width, height, 0f)
-        element.position!!.inTL(0f, 0f)
+        val sortButton = sortHolder.innerElement.addAreaCheckbox(buttonText, data, faction.baseUIColor.darker(), faction.darkUIColor, faction.brightUIColor, width, height, 0f)
 
-        button.setClickable(false)
+        sortButton.setClickable(false)
 
-        element.addTooltipToPrevious(tooltip, TooltipMakerAPI.TooltipLocation.ABOVE)
+        sortHolder.innerElement.addTooltipTo(tooltip, sortButton, TooltipMakerAPI.TooltipLocation.ABOVE)
 
         val arrowSpritePath = "graphics/ui/buttons/arrow_down2.png"
-        val arrowSprite = LunaUISprite(arrowSpritePath, SORT_ARROW_SPRITE_SIZE, SORT_ARROW_SPRITE_SIZE, 0f, 0f, 0f, 0f, "", "Sorting", basePanel, element)
-        arrowSprite.position!!.inRMid(0f)
-        arrowSprite.sprite.color = faction.baseUIColor
-
-        holder.lunaElement!!.addUIElement(element)
+        val arrowSprite = LunaSpriteElement(arrowSpritePath, LunaSpriteElement.ScalingTypes.STRETCH_SPRITE, sortHolder.innerElement, SORT_ARROW_SPRITE_SIZE, SORT_ARROW_SPRITE_SIZE)
+        arrowSprite.position.inTR(0f, height / 2 - SORT_ARROW_SPRITE_SIZE / 2)
+        arrowSprite.getSprite().color = faction.baseUIColor
     }
 
     private fun createSortButtons(basePanel : CustomPanelAPI, yPad : Float) {
@@ -544,53 +550,53 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
 
         basePanel.addComponent(sortPanel)
 
-        var horizontalSpacing = NAME_OFFSET
-        createSortButton(NAME_WIDTH, SORT_PANEL_HEIGHT, sortPanel, sortPanelElement, horizontalSpacing, "Name", null, StaticTooltip(null, null, "Colony name."))//, "Sorts colonies by date established."))
-        horizontalSpacing = CONDITIONS_OFFSET
-        createSortButton(CONDITIONS_WIDTH, SORT_PANEL_HEIGHT, sortPanel, sortPanelElement, horizontalSpacing, "Conditions", null, StaticTooltip(null, null, "Planetary/local conditions. Does not include conditions added by human activity."))//, "Sorts by number of conditions."))
-        horizontalSpacing = HAZARD_OFFSET
-        createSortButton(HAZARD_WIDTH, SORT_PANEL_HEIGHT, sortPanel, sortPanelElement, horizontalSpacing, "Hazard rating", null, StaticTooltip(null, null, "Planetary hazard rating."))//, "Sorts by hazard rating."))
+        createSortButton(sortPanelElement, "Name", null, NAME_WIDTH, SORT_PANEL_HEIGHT, NAME_SORT_OFFSET, StaticTooltip(null, null, "Colony name."))//, "Sorts colonies by date established."))
+        createSortButton(sortPanelElement, "Conditions", null, CONDITIONS_WIDTH, SORT_PANEL_HEIGHT, CONDITIONS_SORT_OFFSET, StaticTooltip(null, null, "Planetary/local conditions. Does not include conditions added by human activity."))//, "Sorts by number of conditions."))
+        createSortButton(sortPanelElement, "Hazard rating", null, HAZARD_WIDTH, SORT_PANEL_HEIGHT, HAZARD_SORT_OFFSET, StaticTooltip(null, null, "Planetary hazard rating."))//, "Sorts by hazard rating."))
     }
 
-    private fun createPlanetsNamePanel(basePanel : CustomPanelAPI, baseElement : TooltipMakerAPI, market : MarketAPI, faction : FactionAPI) {
-        /*
-        Stack SHOULD be as follows: nameHolder -> nameElement -> nameSprite -> nameLabel
-         */
-        val nameHolder = LunaUIPlaceholder(false, NAME_WIDTH, PLANET_CARD_HEIGHT, "", "PlanetName", basePanel, baseElement)
-        nameHolder.lunaElement!!.position.inTL(NAME_OFFSET, 0f)
-        val nameElement = nameHolder.lunaElement!!.createUIElement(NAME_WIDTH, PLANET_CARD_HEIGHT, false)
-        nameElement.position.inTL(0f, 0f)
+    private fun createPlanetsNamePanel(baseElement : TooltipMakerAPI, market : MarketAPI) {
+        val nameHolder = LunaElement(baseElement, NAME_WIDTH, PLANET_CARD_HEIGHT)
+        nameHolder.renderBackground = false
+        nameHolder.renderBorder = false
+        nameHolder.position.inTL(0f, 0f)
 
-        nameHolder.lunaElement!!.addUIElement(nameElement)
+//        nameHolder.innerElement.addAreaCheckbox(null, null, Global.getSector().playerFaction.baseUIColor, Color(122,122,122,255), Global.getSector().playerFaction.brightUIColor, NAME_WIDTH, PLANET_CARD_HEIGHT, 0f).position.inTL(0f, 0f)
 
         var nameSpriteSize = PLANET_PLANET_SPRITE_SIZE
         if (market.planetEntity.isMoon) nameSpriteSize = PLANET_MOON_SPRITE_SIZE
         if (market.planetEntity.isGasGiant) nameSpriteSize = PLANET_GAS_GIANT_SPRITE_SIZE
 
-        val nameSprite = LunaUISphere(market.planetEntity.spec.texture, nameSpriteSize, 0f, 0f, "", "Planets", nameHolder.lunaElement!!, nameElement)
-        nameSprite.position!!.inTL(NAME_WIDTH / 2, PLANET_CARD_HEIGHT / 2)
+        if (market.planetEntity.spec.starscapeIcon != null) {
+            val nameSprite = LunaSpriteElement(market.planetEntity.spec.starscapeIcon, LunaSpriteElement.ScalingTypes.STRETCH_SPRITE, nameHolder.innerElement, nameSpriteSize, nameSpriteSize)
+            nameSprite.position.inTL(0f, 0f)
+        } else {
+            LOGGER.info("Planet ${market.name} starscape icon is null")
+        }
 
-        val nameLabelElement = nameHolder.lunaElement!!.createUIElement(NAME_WIDTH, HEADER_HEIGHT, false)
-        val nameLabel = nameLabelElement.addPara(market.name, faction.baseUIColor, 0f)
+//        val nameSprite = LunaUISphere(market.planetEntity.spec.texture, nameSpriteSize, 0f, 0f, "", "Planets", nameHolder.elementPanel, nameHolder.innerElement)
+//        nameSprite.position!!.inTL(NAME_WIDTH / 2, PLANET_CARD_HEIGHT / 2)
+
+        val nameLabel = nameHolder.innerElement.addPara(market.name, market.textColorForFactionOrPlanet, 0f)
         val nameLength = nameLabel.computeTextWidth(market.name)
-        nameLabelElement.position.inBL(NAME_WIDTH / 2 - nameLength / 2, 0f)
-        nameHolder.lunaElement!!.addUIElement(nameLabelElement)
+        nameLabel.position.inTL(NAME_WIDTH / 2 - nameLength / 2, PLANET_CARD_HEIGHT - HEADER_HEIGHT)
     }
 
-    private fun createPlanetsConditionPanel(basePanel : CustomPanelAPI, baseElement : TooltipMakerAPI, market : MarketAPI) {
+    private fun createPlanetsConditionPanel(baseElement : TooltipMakerAPI, market : MarketAPI) {
         /*
         stack SHOULD be: conditionHolder -> conditionElement -> conditionSprites
          */
-        val conditionHolder = LunaUIPlaceholder(false, CONDITIONS_WIDTH, PLANET_CARD_HEIGHT, "", "PlanetConditions", basePanel, baseElement)
-        conditionHolder.lunaElement!!.position.inTL(CONDITIONS_OFFSET, 0f)
-        val conditionElement = conditionHolder.lunaElement!!.createUIElement(CONDITIONS_WIDTH, PLANET_CARD_HEIGHT, false)
-        conditionElement.position.inTL(0f, 0f)
+        val conditionHolder = LunaElement(baseElement, CONDITIONS_WIDTH, PLANET_CARD_HEIGHT)
+        conditionHolder.renderBackground = false
+        conditionHolder.renderBorder = false
+        conditionHolder.position.inTL(CONDITIONS_PANEL_OFFSET, 0f)
 
-        conditionHolder.lunaElement!!.addUIElement(conditionElement)
+//        conditionHolder.innerElement.addAreaCheckbox(null, null, Global.getSector().playerFaction.baseUIColor, Color(122,122,122,255), Global.getSector().playerFaction.brightUIColor, CONDITIONS_WIDTH, PLANET_CARD_HEIGHT, 0f).position.inTL(0f, 0f)
 
-        var conditionHorizontalSpacing = 0f
+        var conditionHorizontalSpacing = 2f
         var conditionVerticalSpacing = PLANET_CARD_HEIGHT / 2
-        val rows = (CONDITIONS_WIDTH / (market.conditions.size * CONDITION_SPRITE_SIZE_W_SPACING)).toInt()
+        val planetaryConditionsCount = market.conditions.filter { it.isPlanetary }.size
+        val rows = ((planetaryConditionsCount * CONDITION_SPRITE_SIZE_W_SPACING) / CONDITIONS_WIDTH).toInt() + 1
 
         var conditionSpriteSize = CONDITION_SPRITE_SIZE
         val conditionSpriteCapacity = PLANET_CARD_HEIGHT / 2
@@ -599,22 +605,19 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
             conditionSpriteSize = conditionSpriteCapacity / (rows + rows * conditionSpriteSpacing)
         }
 
-        val planetTypeLabelElement = conditionHolder.lunaElement!!.createUIElement(CONDITIONS_WIDTH, HEADER_HEIGHT, false)
-        val planetTypeLabel = planetTypeLabelElement.addPara(market.planetEntity.typeNameWithWorld, market.planetEntity.lightColor, 0f)
+        val planetTypeLabelElement = conditionHolder.elementPanel.createUIElement(CONDITIONS_WIDTH, HEADER_HEIGHT, false)
+        val planetTypeLabel = planetTypeLabelElement.addPara(market.planetEntity.spec.name, market.planetEntity.spec.iconColor, 0f)
+
         val planetTypeHeight = planetTypeLabel.computeTextHeight(market.planetEntity.typeNameWithWorld)
         planetTypeLabelElement.position.inTL(PLANET_TYPE_LABEL_MAGIC_X_PAD, conditionVerticalSpacing - planetTypeHeight - 5f)
-        conditionHolder.lunaElement!!.addUIElement(planetTypeLabelElement)
+        planetTypeLabel.position.inTL(0f, 0f)
+        conditionHolder.elementPanel.addUIElement(planetTypeLabelElement)
 
         for (condition in market.conditions) {
             if (!condition.isPlanetary) continue
 
-            val conditionBorderSpriteName = "graphics/ui/buttons/pause.png"
-            val conditionBorderSprite = LunaUISprite(conditionBorderSpriteName, conditionSpriteSize, conditionSpriteSize, 0f, 0f, 0f, 0f, "", "PlanetConditionsSprite", conditionHolder.lunaElement!!, conditionElement)
-            conditionBorderSprite.position!!.inTL(conditionHorizontalSpacing, conditionVerticalSpacing)
-            conditionBorderSprite.sprite.color = Global.getSector().playerFaction.baseUIColor
-
-            val conditionSprite = LunaUISprite(condition.spec.icon, conditionSpriteSize, conditionSpriteSize, 0f, 0f, 0f, 0f, "", "PlanetConditionsSprite", conditionHolder.lunaElement!!, conditionElement)
-            conditionSprite.position!!.inTL(conditionHorizontalSpacing, conditionVerticalSpacing)
+            val conditionSprite = LunaSpriteElement(condition.spec.icon, LunaSpriteElement.ScalingTypes.STRETCH_SPRITE, conditionHolder.innerElement, conditionSpriteSize, conditionSpriteSize)
+            conditionSprite.position.inTL(conditionHorizontalSpacing, conditionVerticalSpacing)
 
             val ttName = condition.spec.name
             val ttDescription = condition.spec.desc
@@ -622,7 +625,7 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
                 ttDescription.replace(replacement.key, replacement.value)
             }
 
-            conditionElement.addTooltipTo(StaticTooltip(ttName, condition, ttDescription), conditionSprite.lunaElement, TooltipMakerAPI.TooltipLocation.BELOW)
+            conditionHolder.innerElement.addTooltipTo(StaticTooltip(ttName, condition, ttDescription), conditionSprite.innerElement, TooltipMakerAPI.TooltipLocation.BELOW)
 
             conditionHorizontalSpacing += conditionSpriteSize + conditionSpriteSpacing
             if (conditionHorizontalSpacing > CONDITIONS_WIDTH) {
@@ -632,54 +635,42 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
         }
     }
 
-    private fun createPlanetsHazardPanel(basePanel : CustomPanelAPI, baseElement : TooltipMakerAPI, market : MarketAPI, faction : FactionAPI, buttonData : CommandUIButtonData) {
+    private fun createPlanetsHazardPanel(baseElement : TooltipMakerAPI, market : MarketAPI, faction : FactionAPI, buttonData : CommandUIButtonData) {
         /*
-        stack SHOULD be: hazardHolder -> hazardElement -> hazardText
+        stack SHOULD be: hazardHolder -> hazardText
          */
-        val hazardHolder = LunaUIPlaceholder(false, HAZARD_WIDTH, PLANET_CARD_HEIGHT, "", "PlanetHazard", basePanel, baseElement)
-        hazardHolder.lunaElement!!.position.inTL(HAZARD_OFFSET, 0f)
-        val hazardElement = hazardHolder.lunaElement!!.createUIElement(HAZARD_WIDTH, PLANET_CARD_HEIGHT, false)
-        hazardElement.position.inTL(0f, 0f)
+        val hazardHolder = LunaElement(baseElement, HAZARD_WIDTH, PLANET_CARD_HEIGHT)
+        hazardHolder.renderBackground = false
+        hazardHolder.renderBorder = false
+        hazardHolder.position.inTL(HAZARD_PANEL_OFFSET, 0f)
 
-        val hazardLabelElement = hazardHolder.lunaElement!!.createUIElement(HAZARD_WIDTH, HEADER_HEIGHT, false)
         val hazardLabelRating = (market.hazard.modified * 100).toInt()
-        val hazardLabel = hazardLabelElement.addPara("Hazard rating: $hazardLabelRating%%", 0f, faction.baseUIColor, Misc.getHighlightColor(), "$hazardLabelRating%")
-        hazardLabelElement.position.inBL(0f, 0f)
-        hazardHolder.lunaElement!!.addUIElement(hazardLabelElement)
+        val hazardLabel = hazardHolder.innerElement.addPara("Hazard rating: $hazardLabelRating%%", 0f, faction.baseUIColor, Misc.getHighlightColor(), "$hazardLabelRating%")
+        hazardLabel.position.inTL(0f, PLANET_CARD_HEIGHT - HEADER_HEIGHT)
 
         val terraformingController = getTerraformingControllerFromMarket(market)
-        val projectLabelElement = hazardHolder.lunaElement!!.createUIElement(HAZARD_WIDTH, HEADER_HEIGHT * 2, false)
         val projectNameNicer = boggledTools.getTooltipProjectName(terraformingController.project)
-        buttonData.projectLabel = projectLabelElement.addPara(projectNameNicer, faction.baseUIColor, 0f)
-        projectLabelElement.position.inTL(0f, SORT_SPACING)
+        buttonData.projectLabel = hazardHolder.innerElement.addPara(projectNameNicer, faction.baseUIColor, 0f)
+        buttonData.projectLabel!!.position.inTL(0f, SORT_SPACING)
 
-        val projectTimeRemainingElement = hazardHolder.lunaElement!!.createUIElement(HAZARD_WIDTH, HEADER_HEIGHT, false)
-        buttonData.projectTimeRemaining = projectTimeRemainingElement.addPara(getTerraformingDaysRemainingComplete(terraformingController), 0f, faction.baseUIColor, Misc.getHighlightColor(), "${getTerraformingDaysRemaining(terraformingController)}")
-        projectTimeRemainingElement.position.inBL(0f, HEADER_HEIGHT + SORT_SPACING)
-
-        buttonData.projectTimeRemaining?.position?.inBL(SORT_SPACING, 0f)
-
-        hazardHolder.lunaElement!!.addUIElement(projectLabelElement)
-        hazardHolder.lunaElement!!.addUIElement(projectTimeRemainingElement)
-
-        hazardHolder.lunaElement!!.addUIElement(hazardElement)
+        buttonData.projectTimeRemaining = hazardHolder.innerElement.addPara(getTerraformingDaysRemainingComplete(terraformingController), 0f, faction.baseUIColor, Misc.getHighlightColor(), "${getTerraformingDaysRemaining(terraformingController)}")
+        buttonData.projectTimeRemaining!!.position.inTL(0f, PLANET_CARD_HEIGHT - 2 * HEADER_HEIGHT)
     }
 
     private fun createPlanetsPanel(basePanel : CustomPanelAPI, height : Float, yPad : Float) {
         val faction = Global.getSector().playerFaction
         val markets : ArrayList<MarketAPI> = boggledTools.getNonStationMarketsPlayerControls()
 
-        val planetsPanelWidth = PLANETS_PANEL_WIDTH
         val planetsPanelHeight = height - yPad - 5f
 
-        val planetsPanel = basePanel.createCustomPanel(planetsPanelWidth, planetsPanelHeight, null)
+        val planetsPanel = basePanel.createCustomPanel(PLANETS_PANEL_WIDTH, planetsPanelHeight, null)
         planetsPanel.position.inTL(0f, yPad)
 
-        val planetsElement = planetsPanel.createUIElement(planetsPanelWidth, planetsPanelHeight, true)
+        val planetsElement = planetsPanel.createUIElement(PLANETS_PANEL_WIDTH, planetsPanelHeight, true)
         planetsElement.position.inTL(0f, 0f)
 
         if (markets.isEmpty()) {
-            planetsElement.addAreaCheckbox("No planets", null, Color(0, 0, 0, 0), Color(0, 0, 0, 0), faction.brightUIColor, planetsPanelWidth, planetsPanelHeight, 0f)
+            planetsElement.addAreaCheckbox("No planets", null, Color(0, 0, 0, 0), Color(0, 0, 0, 0), faction.brightUIColor, PLANETS_PANEL_WIDTH, planetsPanelHeight, 0f)
         }
 
         planetsPanel.addUIElement(planetsElement)
@@ -693,36 +684,36 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
             cardElement is the TooltipMakerAPI for the entire planet's panel
             Stack SHOULD be as follows: cardHolder -> cardElement -> nameHolder | conditionHolder | hazardHolder
              */
-            val cardHolder = LunaUIPlaceholder(false, PLANET_CARD_WIDTH, PLANET_CARD_HEIGHT, "", "Planets", planetsPanel, planetsElement)
-            cardHolder.position!!.inTL(PLANET_CARD_HOLDER_MAGIC_X_PAD, verticalSpacing)
+            val cardHolder = LunaElement(planetsElement, PLANET_CARD_WIDTH, PLANET_CARD_HEIGHT)
+            cardHolder.position.inTL(PLANET_CARD_HOLDER_MAGIC_X_PAD, verticalSpacing)
 
-            val cardElement = cardHolder.lunaElement!!.createUIElement(PLANET_CARD_WIDTH, PLANET_CARD_HEIGHT, false)
-            cardElement.position!!.inTL(0f, 0f)
+            cardHolder.renderBackground = false
+            cardHolder.renderBorder = false
 
-            val button = cardElement.addAreaCheckbox(null, null, faction.baseUIColor, Color(0,0, 0,0), faction.brightUIColor, PLANET_CARD_WIDTH, PLANET_CARD_HEIGHT, 0f)
+            val button = cardHolder.innerElement.addAreaCheckbox(null, null, faction.darkUIColor, Color(0,0, 0,0), faction.brightUIColor, PLANET_CARD_WIDTH, PLANET_CARD_HEIGHT, 0f)
             button.position.inTL(0f, 0f)
 
             val buttonData = CommandUIButtonData(button, marketVar, this)
 
-            createPlanetsNamePanel(cardHolder.lunaElement!!, cardElement, marketVar, faction)
+            createPlanetsNamePanel(cardHolder.innerElement, marketVar)
 
-            createPlanetsConditionPanel(cardHolder.lunaElement!!, cardElement, marketVar)
+            createPlanetsConditionPanel(cardHolder.innerElement, marketVar)
 
-            createPlanetsHazardPanel(cardHolder.lunaElement!!, cardElement, marketVar, faction, buttonData)
+            createPlanetsHazardPanel(cardHolder.innerElement, marketVar, faction, buttonData)
 
-            val actualButton = LunaUIPlaceholder(false, PLANET_CARD_WIDTH, PLANET_CARD_HEIGHT, buttonData, "Planets", planetsPanel, planetsElement)
-            actualButton.position!!.inTL(0f, verticalSpacing)
+            val actualButton = LunaElement(cardHolder.innerElement, PLANET_CARD_WIDTH, PLANET_CARD_HEIGHT)
+            actualButton.renderBackground = false
+            actualButton.renderBorder = false
+            actualButton.position.inTL(PLANET_CARD_HOLDER_MAGIC_X_PAD, 0f)
 
-//            cardElement.addTooltipTo(PlanetCardTooltip(cardHolder.lunaElement!!, marketVar), button, TooltipMakerAPI.TooltipLocation.RIGHT)
+//            cardHolder.innerElement.addTooltipTo(PlanetCardTooltip(cardHolder.elementPanel, marketVar), button, TooltipMakerAPI.TooltipLocation.RIGHT)
 
             /*
             handlePlanetCardPress is where everything related to actually selecting a planetCard is handled
              */
             actualButton.onClick {
-                handlePlanetCardPress(this.key as CommandUIButtonData)
+                handlePlanetCardPress(buttonData)
             }
-
-            cardHolder.lunaElement!!.addUIElement(cardElement)
 
             verticalSpacing += PLANET_CARD_HEIGHT
         }

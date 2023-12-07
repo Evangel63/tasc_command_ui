@@ -3,7 +3,7 @@
 	"name":"Terraforming & Station Construction - Command UI",
 	"author":"Evangel",
     "utility":"false",
-	"version":"1.0.2",
+	"version":"1.0.3",
 	"description":"Better UI for Terraforming & Station Construction mod.",
     "gameVersion": "0.96a-RC10",
   	"jars":["jars/tasc_command_ui.jar"],

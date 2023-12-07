@@ -218,10 +218,6 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
         private const val SORT_PANEL_HEIGHT = HEADER_HEIGHT
         private const val SORT_ARROW_SPRITE_SIZE = 15f
 
-        private const val PLANET_MOON_SPRITE_SIZE = 15f
-        private const val PLANET_PLANET_SPRITE_SIZE = 20f
-        private const val PLANET_GAS_GIANT_SPRITE_SIZE = 30f
-
         private const val PLANETS_PANEL_WIDTH = SORT_PANEL_WIDTH
 
         private const val PLANET_CARD_WIDTH = PLANETS_PANEL_WIDTH
@@ -558,23 +554,12 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
 
 //        nameHolder.innerElement.addAreaCheckbox(null, null, Global.getSector().playerFaction.baseUIColor, Color(122,122,122,255), Global.getSector().playerFaction.brightUIColor, NAME_WIDTH, PLANET_CARD_HEIGHT, 0f).position.inTL(0f, 0f)
 
-        var nameSpriteSize = PLANET_PLANET_SPRITE_SIZE
-        if (market.planetEntity.isMoon) nameSpriteSize = PLANET_MOON_SPRITE_SIZE
-        if (market.planetEntity.isGasGiant) nameSpriteSize = PLANET_GAS_GIANT_SPRITE_SIZE
-
-        if (market.planetEntity.spec.starscapeIcon != null) {
-            val nameSprite = LunaSpriteElement(market.planetEntity.spec.starscapeIcon, LunaSpriteElement.ScalingTypes.STRETCH_SPRITE, nameHolder.innerElement, nameSpriteSize, nameSpriteSize)
-            nameSprite.position.inTL(0f, 0f)
-        } else {
-            LOGGER.info("Planet ${market.name} starscape icon is null")
-        }
-
-//        val nameSprite = LunaUISphere(market.planetEntity.spec.texture, nameSpriteSize, 0f, 0f, "", "Planets", nameHolder.elementPanel, nameHolder.innerElement)
-//        nameSprite.position!!.inTL(NAME_WIDTH / 2, PLANET_CARD_HEIGHT / 2)
+        nameHolder.innerElement.showPlanetInfo(market.planetEntity, NAME_WIDTH, PLANET_CARD_HEIGHT, false, 0f)
 
         val nameLabel = nameHolder.innerElement.addPara(market.name, market.textColorForFactionOrPlanet, 0f)
         val nameLength = nameLabel.computeTextWidth(market.name)
-        nameLabel.position.inTL(NAME_WIDTH / 2 - nameLength / 2, PLANET_CARD_HEIGHT - HEADER_HEIGHT)
+
+        nameLabel.position.inTL(NAME_WIDTH / 2 - (nameLength * 0.9f) / 2, PLANET_CARD_HEIGHT - HEADER_HEIGHT)
     }
 
     private fun createPlanetsConditionPanel(baseElement : TooltipMakerAPI, market : MarketAPI) {
@@ -670,7 +655,7 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
         if (markets.isEmpty()) {
             planetsElement.addAreaCheckbox("No planets", null, Color(0, 0, 0, 0), Color(0, 0, 0, 0), faction.brightUIColor, PLANETS_PANEL_WIDTH, planetsPanelHeight, 0f)
         }
-        
+
         var verticalSpacing = 3f
         for (marketVar in markets) {
             val cardHolder = LunaElement(planetsElement, PLANET_CARD_WIDTH, PLANET_CARD_HEIGHT)

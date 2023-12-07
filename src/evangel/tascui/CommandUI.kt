@@ -386,6 +386,7 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
 
         requirementsNotMetButton!!.setClickable(false)
 
+        inactiveStartProjectButton!!.position.inTL(BUTTON_OFF_SCREEN_POSITION, BUTTON_OFF_SCREEN_POSITION)
         startProjectButton!!.position.inTL(BUTTON_OFF_SCREEN_POSITION, BUTTON_OFF_SCREEN_POSITION)
         requirementsNotMetButton!!.position.inTL(BUTTON_OFF_SCREEN_POSITION, BUTTON_OFF_SCREEN_POSITION)
 
@@ -449,15 +450,11 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
         }
     }
 
-    private fun moveCancelButtonOffscreen(activeButton : ButtonAPI, inactiveButton : ButtonAPI) {
-        activeButton.position.inTR(0f, 0f)
-        inactiveButton.position.inTL(BUTTON_OFF_SCREEN_POSITION, BUTTON_OFF_SCREEN_POSITION)
-    }
-
-    private fun moveStartButtonOffscreen(activeButton : ButtonAPI, inactiveButton1 : ButtonAPI, inactiveButton2 : ButtonAPI) {
-        activeButton.position.inTL(0f, 0f)
-        inactiveButton1.position.inTL(BUTTON_OFF_SCREEN_POSITION, BUTTON_OFF_SCREEN_POSITION)
-        inactiveButton2.position.inTL(BUTTON_OFF_SCREEN_POSITION, BUTTON_OFF_SCREEN_POSITION)
+    private fun moveButtonsOffscreen(positionInPlacer : (x : Float, y : Float) -> PositionAPI, vararg inactiveButtons : ButtonAPI) {
+        positionInPlacer(0f, 0f)
+        for (inactiveButton in inactiveButtons) {
+            inactiveButton.position.inTL(BUTTON_OFF_SCREEN_POSITION, BUTTON_OFF_SCREEN_POSITION)
+        }
     }
 
     private fun handlePlanetCardPress(data : CommandUIButtonData) {
@@ -474,12 +471,12 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
         if (selectedPlanet != null) {
             updateTerraformingSelection()
 
-            moveStartButtonOffscreen(inactiveStartProjectButton!!, startProjectButton!!, requirementsNotMetButton!!)
+            moveButtonsOffscreen(inactiveStartProjectButton!!.position::inTL, startProjectButton!!, requirementsNotMetButton!!)
             val terraformingController = getTerraformingControllerFromMarket(selectedPlanet!!.market)
             if (terraformingController.project == "None") {
-                moveCancelButtonOffscreen(inactiveCancelProjectButton!!, activeCancelProjectButton!!)
+                moveButtonsOffscreen(inactiveCancelProjectButton!!.position::inTR, activeCancelProjectButton!!)
             } else {
-                moveCancelButtonOffscreen(activeCancelProjectButton!!, inactiveCancelProjectButton!!)
+                moveButtonsOffscreen(activeCancelProjectButton!!.position::inTR, inactiveCancelProjectButton!!)
             }
         }
     }
@@ -487,11 +484,9 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
     private fun handleTerraformingOptionButtonPress() {
         val projectID = (selectedProject?.customData as ProjectRequirementsTooltip).terraformingOptionID
         if (boggledTools.projectRequirementsMet(selectedPlanet?.market, projectID)) {
-            startProjectButton!!.position.inTL(0f, 0f)
-            requirementsNotMetButton!!.position.inTL(BUTTON_OFF_SCREEN_POSITION, BUTTON_OFF_SCREEN_POSITION)
+            moveButtonsOffscreen(startProjectButton!!.position::inTL, requirementsNotMetButton!!, inactiveStartProjectButton!!)
         } else {
-            startProjectButton!!.position.inTL(BUTTON_OFF_SCREEN_POSITION, BUTTON_OFF_SCREEN_POSITION)
-            requirementsNotMetButton!!.position.inTL(0f, 0f)
+            moveButtonsOffscreen(requirementsNotMetButton!!.position::inTL, startProjectButton!!, inactiveStartProjectButton!!)
         }
     }
 
@@ -506,7 +501,7 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
         selectedPlanet?.projectTimeRemaining?.text = getTerraformingDaysRemainingComplete(terraformingController)
         selectedPlanet?.projectTimeRemaining?.setHighlight("${getTerraformingDaysRemaining(terraformingController)}")
 
-        moveCancelButtonOffscreen(activeCancelProjectButton!!, inactiveCancelProjectButton!!)
+        moveButtonsOffscreen(activeCancelProjectButton!!.position::inTR, inactiveCancelProjectButton!!)
     }
 
     private fun handleTerraformingCancelProjectButtonPress() {
@@ -516,7 +511,7 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
         selectedPlanet?.projectLabel?.text = "None"
         selectedPlanet?.projectTimeRemaining?.text = ""
 
-        moveCancelButtonOffscreen(inactiveCancelProjectButton!!, activeCancelProjectButton!!)
+        moveButtonsOffscreen(inactiveCancelProjectButton!!.position::inTR, activeCancelProjectButton!!)
     }
 
     private fun createSortButton(baseElement: TooltipMakerAPI, buttonText: String, data: Any?, width: Float, height: Float, xPad: Float, tooltip: StaticTooltip) {
@@ -661,7 +656,8 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
         val faction = Global.getSector().playerFaction
         val markets : ArrayList<MarketAPI> = boggledTools.getNonStationMarketsPlayerControls()
 
-        val planetsPanelHeight = height - yPad - 5f
+        val planetsPanelHeight = height
+//        val planetsPanelHeight = markets.size * PLANET_CARD_HEIGHT + 3f
 
         val planetsPanel = basePanel.createCustomPanel(PLANETS_PANEL_WIDTH, planetsPanelHeight, null)
         planetsPanel.position.inTL(0f, yPad)
@@ -669,21 +665,14 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
         val planetsElement = planetsPanel.createUIElement(PLANETS_PANEL_WIDTH, planetsPanelHeight, true)
         planetsElement.position.inTL(0f, 0f)
 
+//        planetsElement.addAreaCheckbox(null, null, faction.baseUIColor, Color(128,128,128,255), faction.brightUIColor, PLANETS_PANEL_WIDTH, planetsPanelHeight, 0f).position.inTL(0f, 0f)
+
         if (markets.isEmpty()) {
             planetsElement.addAreaCheckbox("No planets", null, Color(0, 0, 0, 0), Color(0, 0, 0, 0), faction.brightUIColor, PLANETS_PANEL_WIDTH, planetsPanelHeight, 0f)
         }
-
-        planetsPanel.addUIElement(planetsElement)
-
-        basePanel.addComponent(planetsPanel)
-
+        
         var verticalSpacing = 3f
         for (marketVar in markets) {
-            /*
-            cardHolder is the placeholder for the entire planet's panel
-            cardElement is the TooltipMakerAPI for the entire planet's panel
-            Stack SHOULD be as follows: cardHolder -> cardElement -> nameHolder | conditionHolder | hazardHolder
-             */
             val cardHolder = LunaElement(planetsElement, PLANET_CARD_WIDTH, PLANET_CARD_HEIGHT)
             cardHolder.position.inTL(PLANET_CARD_HOLDER_MAGIC_X_PAD, verticalSpacing)
 
@@ -717,6 +706,9 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
 
             verticalSpacing += PLANET_CARD_HEIGHT
         }
+
+        planetsPanel.addUIElement(planetsElement)
+        basePanel.addComponent(planetsPanel)
     }
 
     private fun createPlanetList() {

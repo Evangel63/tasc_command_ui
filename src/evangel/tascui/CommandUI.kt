@@ -298,9 +298,19 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
         element.position.inTL(0f, 0f)
         panel.addUIElement(element)
 
-        createPlanetList()
+        val planetCardPanelWidth = SORT_PANEL_WIDTH
+        val planetCardPanelHeight = height - HEADER_HEIGHT - 5f
+        val planetCardPanelXPad = 0f
+        val planetCardPanelYPad = HEADER_HEIGHT
 
-        createTerraformingSelection()
+        val terraformingPanelWidth = width - SORT_PANEL_WIDTH - 9f
+        val terraformingPanelHeight = height - HEADER_HEIGHT - 5f
+        val terraformingPanelXPad = SORT_PANEL_WIDTH + 9f
+        val terraformingPanelYPad = HEADER_HEIGHT
+
+        createPlanetList(panel, planetCardPanelWidth, planetCardPanelHeight, planetCardPanelXPad, planetCardPanelYPad)
+
+        createTerraformingSelection(panel, terraformingPanelWidth, terraformingPanelHeight, terraformingPanelXPad, terraformingPanelYPad)
     }
 
     override fun processInput(events : MutableList<InputEventAPI>) {
@@ -342,35 +352,29 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
         }
     }
 
-    private fun createTerraformingSelection() {
+    private fun createTerraformingSelection(basePanel : CustomPanelAPI, width : Float, height : Float, xPad : Float, yPad : Float) {
         val verticalSpacing = HEADER_HEIGHT + 1f
 
-        val terraformingPanelWidth = width - SORT_PANEL_WIDTH - 9f
-        val terraformingPanelHeight = height - verticalSpacing - 5f
+        val terraformingPanel = basePanel.createCustomPanel(width, height, null)
+        terraformingPanel.position.inTL(xPad, yPad)
 
-        val terraformingPanel = panel.createCustomPanel(terraformingPanelWidth, terraformingPanelHeight, null)
-        terraformingPanel.position.inTR(0f, verticalSpacing)
-
-        val terraformingElement = terraformingPanel.createUIElement(terraformingPanelWidth, terraformingPanelHeight, true)
+        val terraformingElement = terraformingPanel.createUIElement(width, height, true)
         terraformingElement.position.inTL(0f, 0f)
-
-        terraformingPanel.addUIElement(terraformingElement)
-        panel.addComponent(terraformingPanel)
 
         val sectionHeading = terraformingElement.addSectionHeading(selectedPlanet?.market?.name, Alignment.MID, 0f)
         sectionHeading.position.inTL(0f, 0f)
 
-        val buttonsWidth = terraformingPanelWidth * 0.5f - SORT_SPACING;
-        val buttonsHeight = terraformingPanelHeight - verticalSpacing - HEADER_HEIGHT
+        val buttonsWidth = width * 0.5f - SORT_SPACING;
+        val buttonsHeight = height - verticalSpacing - HEADER_HEIGHT
 
         createTerraformingSelectionButtons(terraformingElement, buttonsWidth, buttonsHeight, verticalSpacing)
 
-        val startCancelProjectButtonsWidth = terraformingPanelWidth - SORT_SPACING
+        val startCancelProjectButtonsWidth = width - SORT_SPACING
         val startCancelProjectButtonsHeight = HEADER_HEIGHT
         val startCancelProjectButtonsHolder = LunaElement(terraformingElement, startCancelProjectButtonsWidth, startCancelProjectButtonsHeight)
         startCancelProjectButtonsHolder.renderBackground = false
         startCancelProjectButtonsHolder.renderBorder = false
-        startCancelProjectButtonsHolder.position.inTL(0f, terraformingPanelHeight - startCancelProjectButtonsHeight)
+        startCancelProjectButtonsHolder.position.inTL(0f, height - startCancelProjectButtonsHeight)
 
 //        startCancelProjectButtonsHolder.innerElement.addAreaCheckbox(null, null, Global.getSector().playerFaction.baseUIColor, Color(122,122,122,255), Global.getSector().playerFaction.brightUIColor, startCancelProjectButtonsWidth, startCancelProjectButtonsHeight, 0f).position.inTL(0f, 0f)
 
@@ -395,6 +399,9 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
         inactiveCancelProjectButton!!.position.inTL(BUTTON_OFF_SCREEN_POSITION, BUTTON_OFF_SCREEN_POSITION)
 
         terraformingPanelData = CommandUITerraformingButtonPanelData(sectionHeading)
+
+        terraformingPanel.addUIElement(terraformingElement)
+        basePanel.addComponent(terraformingPanel)
     }
 
     private fun updateTerraformingSelection() {
@@ -696,14 +703,20 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
         basePanel.addComponent(planetsPanel)
     }
 
-    private fun createPlanetList() {
-        var verticalSpacing = HEADER_HEIGHT
-        createSortButtons(panel, verticalSpacing)
+    private fun createPlanetList(basePanel : CustomPanelAPI, width : Float, height : Float, xPad : Float, yPad : Float) {
+
+        val planetPanel = basePanel.createCustomPanel(width, height, null)
+        planetPanel.position.inTL(xPad, yPad)
+
+        var verticalSpacing = 0f
+        createSortButtons(planetPanel, verticalSpacing)
 
         verticalSpacing += SORT_PANEL_HEIGHT
 
         val planetsPanelHeight = height - verticalSpacing - 5f
-        createPlanetsPanel(panel, planetsPanelHeight, verticalSpacing)
+        createPlanetsPanel(planetPanel, planetsPanelHeight, verticalSpacing)
+
+        basePanel.addComponent(planetPanel)
     }
 
     override fun advance(amount : Float) {

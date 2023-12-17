@@ -32,7 +32,7 @@
     {
       "major": 1,
       "minor": 0,
-      "patch": 3 # Can be a number, character or string (1, 2, a, b, "-RC2", etc)
+      "patch": 5 # Can be a number, character or string (1, 2, a, b, "-RC2", etc)
     },
 
   # OPTIONAL
@@ -45,7 +45,7 @@
   # OPTIONAL
   # A download link directly to the latest version of your mod.
   # This is used by mod managers/version checkers (eg SMOL, MOSS, LunaLib) to let users quickly update/download without visiting your mod page.
-  "directDownloadURL": "",
+  "directDownloadURL": "https://github.com/Evangel63/tasc_command_ui/releases",
 
   # OPTIONAL
   # A link to your changelog.

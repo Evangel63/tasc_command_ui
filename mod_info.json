@@ -3,7 +3,7 @@
 	"name":"Terraforming & Station Construction - Command UI",
 	"author":"Evangel",
     "utility":"false",
-	"version":"1.0.3",
+	"version":"1.0.5",
 	"description":"Better UI for Terraforming & Station Construction mod.",
     "gameVersion": "0.96a-RC10",
   	"jars":["jars/tasc_command_ui.jar"],
@@ -12,7 +12,7 @@
         {
             "id": "Terraforming & Station Construction",
             "name": "Terraforming & Station Construction",
-            "version": "8.4.6.Alpha"
+            "version": "8.4.5"
         },
         {
             "id": "lunalib",

@@ -60,7 +60,7 @@ class StaticTooltip(title : String?, condition : MarketConditionAPI?, vararg str
         }
         spacing = 8f
 
-        if (condition != null) {
+        if (condition != null && condition.genSpec != null) {
             val hazardRating = (condition.genSpec.hazard * 100).toInt()
             if (hazardRating != 0) {
                 val hazardPrefix = if (hazardRating > 0) "+" else ""
@@ -587,9 +587,14 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
 
         var conditionSpriteSize = CONDITION_SPRITE_SIZE
         val conditionSpriteCapacity = PLANET_CARD_HEIGHT / 2
-        val conditionSpriteSpacing = 6f
-        if ((rows * conditionSpriteSize) > conditionSpriteCapacity) {
-            conditionSpriteSize = conditionSpriteCapacity / (rows + rows * conditionSpriteSpacing)
+        var conditionSpriteSpacing = 6f
+        if ((planetaryConditionsCount * (conditionSpriteSize + conditionSpriteSpacing)) > CONDITIONS_WIDTH) {
+            val horSpaceNeeded = planetaryConditionsCount * (conditionSpriteSize + conditionSpriteSpacing)
+            val rowsNeeded = (horSpaceNeeded / CONDITIONS_WIDTH).toInt() + 1
+
+            conditionSpriteSpacing /= rowsNeeded
+            val verSpacePerRow = (conditionSpriteCapacity - conditionSpriteSpacing * (rowsNeeded - 1)) / (rowsNeeded)
+            conditionSpriteSize = verSpacePerRow
         }
 
         val planetTypeLabelElement = conditionHolder.elementPanel.createUIElement(CONDITIONS_WIDTH, HEADER_HEIGHT, false)
@@ -615,7 +620,7 @@ class CommandUIIntelK : LunaBaseCustomPanelPlugin() {
             conditionHolder.innerElement.addTooltipTo(StaticTooltip(ttName, condition, ttDescription), conditionSprite.innerElement, TooltipMakerAPI.TooltipLocation.BELOW)
 
             conditionHorizontalSpacing += conditionSpriteSize + conditionSpriteSpacing
-            if (conditionHorizontalSpacing > CONDITIONS_WIDTH) {
+            if ((conditionHorizontalSpacing + conditionSpriteSize) > CONDITIONS_WIDTH) {
                 conditionHorizontalSpacing = 0f
                 conditionVerticalSpacing += conditionSpriteSize + conditionSpriteSpacing
             }
